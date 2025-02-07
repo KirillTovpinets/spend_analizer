@@ -7,11 +7,18 @@ class ReceiptAdmin(admin.ModelAdmin):
     list_filter = ['image', 'uploaded_at']
     search_fields = ['uploaded_at']
 
+
+class ReceptInline(admin.TabularInline):
+    model = Receipt
+    extra = 0
+
+
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
     list_display = ['category', 'amount', 'created_at']
     list_filter = ['category', 'created_at']
     search_fields = ['category', 'description']
+    inlines = [ReceptInline]
 
 
 @admin.register(ExpenseItem)

@@ -76,20 +76,20 @@ def upload_receipt(request):
       except ValueError:
           # If parsing fails, try with two-digit year
           formatted_date = datetime.strptime(date, '%m/%d/%y').strftime("%Y-%m-%d")
-    expense, updated = Expense.objects.update_or_create(
+    expense, created = Expense.objects.update_or_create(
       amount=total,
       post_date=formatted_date if date else None,
-      category='Supermarket',
+      category='Supermarkets',
       defaults={
-          "merchant": merchant.lower().replace(' ', '') if merchant is not None else 'Not specified',
-          "category": 'Supermarket',
+          "category": 'Supermarkets',
           "amount": total,
-          "transaction_date": formatted_date if date else datetime.now(),
-          "post_date": formatted_date if formatted_date else datetime.now(),
       }
     )
 
-    if updated:
+    if created:
+      expense.merchant = merchant if merchant else 'Unknown';
+      expense.transaction_date = formatted_date if date else datetime.now(),
+      expense.post_date = formatted_date if formatted_date else datetime.now(),
       for receipt in receipts:
           expense.receipts.add(receipt)
       expense.save()
@@ -100,7 +100,7 @@ def upload_receipt(request):
 
 
 
-    ommit_items = ['total', 'amount', 'tax', 'subtotal', 'reg', 'SALES', 'CHANGE', 'are Di scover', 'Discover', 'scover', '5659', 'DISCOVER', 'BALANCE']
+    ommit_items = ['total', 'amount', 'tax', 'subtotal', 'reg', 'SALES', 'CHANGE', 'are Di scover', 'Discover', 'scover', '5659', 'DISCOVER', 'BALANCE', '3 SUBTO1 AL']
     records = []
     for item in items:
       omit = False
@@ -208,8 +208,7 @@ def upload_csv(request):
                         transaction_date=trans_date,
                         post_date=post_date,
                         defaults={
-                            'receipt': None,  # Optional - link to a receipt if relevant
-                            'description': ''  # Optional - add a description if needed
+                            'description': '',  # Optional - add a description if needed,
                         }
                     )
                     if created:
@@ -235,7 +234,7 @@ def expense_details(request):
         transaction_date__month=month,
         transaction_date__year=year,
         category=category
-      ).select_related('receipt')
+      ).prefetch_related('receipts')
 
     return render(request, 'expenses/expense_details.html', {
         'expenses': expenses,
