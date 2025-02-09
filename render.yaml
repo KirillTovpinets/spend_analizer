@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: my-web-service
+    env: python # or node, static, docker, etc.
+    plan: starter
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn spend_analizer.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: spend_analizer.settings.production
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_STORAGE_BUCKET_NAME
+        sync: false
+      - key: DB_ENGINE
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+
+databases:
+  - name: my-database
+    plan: free
