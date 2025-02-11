@@ -32,7 +32,3 @@ services:
         sync: false
       - key: EMAIL_HOST_USER
         sync: false
-
-databases:
-  - name: my-database
-    plan: free
