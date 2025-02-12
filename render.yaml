@@ -1,9 +1,9 @@
 services:
   - type: web
     name: my-web-service
-    env: python # or node, static, docker, etc.
+    env: docker # or node, static, docker, etc.
     plan: starter
-    buildCommand: "./build.sh"
+    buildCommand: "./Dockerfile"
     startCommand: "gunicorn spend_analizer.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
