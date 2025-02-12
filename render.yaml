@@ -7,7 +7,7 @@ services:
     startCommand: "gunicorn spend_analizer.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: spend_analizer.settings.production
+        value: spend_analizer.settings
       - key: AWS_ACCESS_KEY_ID
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
