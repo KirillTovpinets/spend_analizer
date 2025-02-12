@@ -25,4 +25,4 @@ ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 EXPOSE 5000
 
 # Command to run your app
-CMD ["python", "app.py"]
+CMD ["gunicorn", "spend_analizer.wsgi:application"]

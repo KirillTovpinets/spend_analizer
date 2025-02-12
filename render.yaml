@@ -4,7 +4,6 @@ services:
     env: docker # or node, static, docker, etc.
     plan: starter
     buildCommand: "./Dockerfile"
-    startCommand: "gunicorn spend_analizer.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: spend_analizer.settings
