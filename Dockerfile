@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/
+
 # Optionally, install additional language packs for Tesseract
 # RUN apt-get install -y tesseract-ocr-rus tesseract-ocr-spa
 
