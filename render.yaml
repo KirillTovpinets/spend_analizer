@@ -1,9 +1,8 @@
 services:
   - type: web
+    runtime: docker
     name: my-web-service
-    env: docker # or node, static, docker, etc.
     plan: starter
-    buildCommand: "./Dockerfile"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: spend_analizer.settings
