@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
 # Optionally, install additional language packs for Tesseract
