@@ -19,7 +19,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://my-web-service-burv:10000']
+CSRF_TRUSTED_ORIGINS = ['https://my-web-service-burv.onrender.com']
 
 SITE_ID = 1
 
