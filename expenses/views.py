@@ -45,7 +45,7 @@ def upload_receipt(request):
     merchant = None
     for image in images:
       if image is not None:
-        resized = cv2.resize(image, None, fx=6, fy=6, interpolation=cv2.INTER_CUBIC)
+        resized = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
         gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
         # show_image('Gray Image', gray)
         # binary_image = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
