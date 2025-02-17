@@ -4,6 +4,7 @@ import pytesseract
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+import uuid
 
 # Path to Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'  # Update this path as needed
@@ -39,7 +40,8 @@ def parse_receipt(text):
             receipt_data['items'].append({
                 'description': description,
                 'price': price,
-                'total': price
+                'total': price,
+                'id': str(uuid.uuid4())
             })
 
     # Extract the total (typically a line that starts with "Total")

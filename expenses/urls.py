@@ -12,4 +12,5 @@ urlpatterns = [
     path('update-expense-items/', views.update_expenses_items, name='update_expenses_items'),
     path('update-expense-info/', views.update_expense_info, name='update_expense_info'),
     path('remove-receipt/<int:receipt_id>/', views.remove_receipt, name='remove_receipt'),
+    path('link-receipt/', views.link_receipt, name='link_receipt'),
 ]

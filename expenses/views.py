@@ -24,12 +24,13 @@ def upload_receipt(request):
   if request.method == 'POST':
     images = []
     receipts = []
-    receipt_urls = []
     s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
     for upload_file in request.FILES.getlist('files'):
       rimage = Receipt.objects.create(image=upload_file)
-      receipts.append(rimage)
-      receipt_urls.append(rimage.image.url)
+      receipts.append({
+        'id': rimage.id,
+        'url': rimage.image.url
+      })
       s3_key = rimage.image.name
       s3_object = s3.get_object(Bucket=s3_bucket, Key=s3_key)
       image_data = s3_object['Body'].read()
@@ -68,57 +69,9 @@ def upload_receipt(request):
       else:
         print("Failed to load image.")
 
-    formatted_date = None
-    if date:
-      try:
-          # Try parsing with four-digit year first
-          formatted_date = datetime.strptime(date, '%m/%d/%Y').strftime("%Y-%m-%d")
-      except ValueError:
-          # If parsing fails, try with two-digit year
-          formatted_date = datetime.strptime(date, '%m/%d/%y').strftime("%Y-%m-%d")
-    expense, created = Expense.objects.update_or_create(
-      amount=total,
-      post_date=formatted_date if date else None,
-      category='Supermarkets',
-      defaults={
-          "category": 'Supermarkets',
-          "amount": total,
-      }
-    )
 
-    if created:
-      expense.merchant = merchant if merchant else 'Unknown';
-      expense.transaction_date = formatted_date if date else datetime.now(),
-      expense.post_date = formatted_date if formatted_date else datetime.now(),
-      for receipt in receipts:
-          expense.receipts.add(receipt)
-      expense.save()
-    elif expense.receipts.count() == 0:
-      for receipt in receipts:
-          expense.receipts.add(receipt)
-      expense.save()
-
-
-
-    ommit_items = ['total', 'amount', 'tax', 'subtotal', 'reg', 'SALES', 'CHANGE', 'are Di scover', 'Discover', 'scover', '5659', 'DISCOVER', 'BALANCE', '3 SUBTO1 AL']
-    records = []
-    for item in items:
-      omit = False
-      for ommit_item in ommit_items:
-          if ommit_item.lower() in item['description'].lower():
-              omit = True
-              break
-      if omit:
-          continue
-
-      record = ExpenseItem.objects.create(
-          description=item['description'],
-          total=item['total'],
-          price=item['price'],
-          expense=expense
-      )
-      records.append(record)
-    return render(request, 'expenses/upload.html', {'records': records, 'expense': expense, 'uploaded_file_urls': receipt_urls})
+    print(receipts)
+    return render(request, 'expenses/upload.html', {'records': data['items'], 'expense': { 'merchant': merchant, 'post_date': date, 'category': 'Supermarkets'}, 'receipts': receipts})
   else:
     return render(request, 'expenses/upload.html')
 
@@ -265,6 +218,61 @@ def update_expense_info(request):
       return JsonResponse({'message': 'Expense updated successfully!'}, status=200)
 
 def remove_receipt(request, receipt_id):
-  receipt = Expense.objects.get(id=receipt_id)
+  receipt = Receipt.objects.get(id=receipt_id)
   receipt.delete()
   return JsonResponse({'message': 'Receipt removed successfully!'}, status=200)
+
+
+def link_receipt(request):
+  if request.method == 'POST':
+    data = json.loads(request.body)
+    receipts = Receipt.objects.filter(id__in=data['receipt_ids'])
+    merchant = data['merchant']
+    formatted_date = data['post_date']
+    expense, created = Expense.objects.update_or_create(
+      amount=data['total'],
+      post_date=data['post_date'],
+      category='Supermarkets',
+      defaults={
+          "category": 'Supermarkets',
+          "amount": data['total'],
+      }
+    )
+
+    if created:
+      expense.merchant = merchant
+      expense.transaction_date = formatted_date
+      expense.post_date = formatted_date
+      for receipt in receipts:
+          expense.receipts.add(receipt)
+      expense.save()
+    elif expense.receipts.count() == 0:
+      for receipt in receipts:
+          expense.receipts.add(receipt)
+      expense.save()
+
+
+
+    ommit_items = ['total', 'amount', 'tax', 'subtotal', 'reg', 'SALES', 'CHANGE', 'are Di scover', 'Discover', 'scover', '5659', 'DISCOVER', 'BALANCE', '3 SUBTO1 AL']
+    records = []
+    for item in data['items']:
+      omit = False
+      for ommit_item in ommit_items:
+          if ommit_item.lower() in item['description'].lower():
+              omit = True
+              break
+      if omit:
+          continue
+
+      record = ExpenseItem.objects.create(
+          description=item['description'],
+          total=item['total'],
+          price=item['price'],
+          expense=expense
+      )
+      records.append(record)
+
+    for receipt in receipts:
+        receipt.expense = expense
+        receipt.save()
+    return JsonResponse({'message': 'Receipt linked successfully!'}, status=200)
