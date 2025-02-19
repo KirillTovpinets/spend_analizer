@@ -71,7 +71,17 @@
       <main id="content-wrapper" class="d-flex flex-column">
         <!-- Page content will be inserted here -->
         <div id="content">
-          <div class="container-fluid">{% block content %} {% endblock %}</div>
+          <div class="container-fluid">
+            <div
+              class="card bg-success text-white shadow mt-3 d-none"
+              id="success-alert"
+            >
+              <div class="card-body">
+                <div class="title"></div>
+              </div>
+            </div>
+            {% block content %} {% endblock %}
+          </div>
         </div>
       </main>
     </div>

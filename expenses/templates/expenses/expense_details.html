@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Expenses for {{ category }} in Month {{ month }} {{year}}</h1>
+<h1>Expenses for {{ category }} in {{ month }} {{year}}</h1>
 
 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
   <thead>
@@ -25,6 +25,10 @@
       </td>
     </tr>
     {% endfor %}
+    <tr>
+      <td colspan="2" align="right">Total</td>
+      <td colspan="2">${{ total }}</td>
+    </tr>
   </tbody>
 </table>
 {% endblock %}

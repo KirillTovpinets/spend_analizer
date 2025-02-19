@@ -23,7 +23,7 @@ def parse_receipt(text):
     lines = text.splitlines()
 
     # Extract the date using a regular expression (matches formats like "01/25/2025" or "2025-01-25")
-    date_pattern = r'\b(\d{2}/\d{2}/\d{4})\b|\b(\d{4}-\d{2}-\d{2})\b|\b(\d{2}/\d{2}/\d{2})\b|\b(\d{2}-\d{2}-\d{2})\b'
+    date_pattern = r'\b(\d{1,2}/\d{2}/\d{4})\b|\b(\d{4}-\d{2}-\d{2})\b|\b(\d{2}/\d{2}/\d{2})\b|\b(\d{2}-\d{2}-\d{2})\b'
     for line in lines:
         date_match = re.search(date_pattern, line)
         if date_match:

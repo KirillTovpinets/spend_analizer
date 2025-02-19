@@ -71,7 +71,16 @@ def upload_receipt(request):
 
 
     print(receipts)
-    return render(request, 'expenses/upload.html', {'records': data['items'], 'expense': { 'merchant': merchant, 'post_date': date, 'category': 'Supermarkets'}, 'receipts': receipts})
+    return render(request, 'expenses/upload.html', {
+      'records': data['items'],
+      'expense': {
+        'merchant': merchant,
+        'post_date': date,
+        'category': 'Supermarkets'
+      },
+      'receipts': receipts,
+      'total': total
+    })
   else:
     return render(request, 'expenses/upload.html')
 
@@ -186,14 +195,32 @@ def expense_details(request):
     expenses = Expense.objects.filter(
         transaction_date__month=month,
         transaction_date__year=year,
-        category=category
-      ).prefetch_related('receipts')
+        category=category,
+      ).exclude(merchant='INTERNET PAYMENT - THANK YOU').prefetch_related('receipts')
+
+    total = expenses.aggregate(Sum('amount'))['amount__sum']
+
+    month_names = {
+        '1': 'January',
+        '2': 'February',
+        '3': 'March',
+        '4': 'April',
+        '5': 'May',
+        '6': 'June',
+        '7': 'July',
+        '8': 'August',
+        '9': 'September',
+        '10': 'October',
+        '11': 'November',
+        '12': 'December',
+    }
 
     return render(request, 'expenses/expense_details.html', {
         'expenses': expenses,
-        'month': month,
+        'month': month_names[month],
         'category': category,
-        'year': year
+        'year': year,
+        'total': total
     })
 
 
@@ -231,10 +258,9 @@ def link_receipt(request):
     formatted_date = data['post_date']
     expense, created = Expense.objects.update_or_create(
       amount=data['total'],
-      post_date=data['post_date'],
-      category='Supermarkets',
+      transaction_date=data['post_date'],
       defaults={
-          "category": 'Supermarkets',
+          "category": data['category'],
           "amount": data['total'],
       }
     )

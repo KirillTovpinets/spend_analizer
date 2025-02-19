@@ -4,9 +4,9 @@
 <h1>Expenses</h1>
 
 <!-- Year filter form -->
-<form method="get">
+<form method="get" class="col-md-4 mb-4">
     <label for="year">Filter by Year:</label>
-    <select name="year" id="year" onchange="this.form.submit()">
+    <select class="form-control custom-select" name="year" id="year" onchange="this.form.submit()">
         <option value="">All Years</option>
         {% for year in years %}
             <option value="{{ year.year }}" {% if year.year|stringformat:"s" == selected_year %}selected{% endif %}>

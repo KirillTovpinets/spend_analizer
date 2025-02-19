@@ -63,7 +63,7 @@
       <input type="date" name="post_date" class="form-control mr-2" value="{{ expense.post_date }}">
       <select name="category" class="form-control mr-2" value="{{ expense.category }}">
         <option value="Supermarkets">Supermarkets</option>
-        <option value="IKEA">IKEA</option>
+        <option value="Merchandise">Merchandise</option>
 
       </select>
       <input type="hidden" name="id" value="{{ expense.id }}">
@@ -134,6 +134,16 @@
     input.setAttribute('readonly', true);
   }
 
+  function showAlert(data) {
+    const alert = document.getElementById('success-alert');
+    alert.classList.remove('d-none');
+    setTimeout(() => {
+      alert.classList.add('d-none');
+    }, 3000);
+    const title = alert.querySelector('.title');
+    title.innerHTML = data.message;
+  }
+
   function handleEditInfo(){
     editInfo = !editInfo;
     this.innerHTML = editInfo ? 'Save' : 'Edit';
@@ -173,12 +183,8 @@
       }
     })
     .then(response => response.json())
-    .then(data => {
-      console.log('Success:', data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+    .then(showAlert)
+    .catch(showAlert);
   }
   document.getElementById('edit-button').addEventListener('click', handleEdit);
   document.getElementById('edit-info-button').addEventListener('click', handleEditInfo);
@@ -235,12 +241,8 @@
       })
     })
     .then(response => response.json())
-    .then(data => {
-      console.log('Success:', data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+    .then(showAlert)
+    .catch(showAlert);
   });
   document.getElementById('edit-total-button').addEventListener('click', function() {
     const total = document.querySelector('input[name="total"]');
