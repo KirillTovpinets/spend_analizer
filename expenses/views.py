@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from .models import Receipt, Expense, ExpenseItem
-from .forms import ReceiptForm, CSVUploadForm
+from .forms import ReceiptForm, CSVUploadForm, CSVBofUploadForm
 import pytesseract
 import json
 from PIL import Image
@@ -11,7 +11,7 @@ import csv
 from io import TextIOWrapper
 from datetime import datetime
 from django.db.models import Sum, Q
-from .utils import parse_receipt, preprocess_image, skew_correction, show_image, format_to_iso
+from .utils import parse_receipt, preprocess_image, skew_correction, show_image, get_bof_category, process_discover_csv, process_bof_csv, format_to_iso
 import cv2
 import boto3
 from django.conf import settings
@@ -146,47 +146,17 @@ def index(request):
 @login_required
 def upload_csv(request):
     if request.method == 'POST':
-        form = CSVUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Read the uploaded file
-            csv_file = TextIOWrapper(request.FILES['csv_file'].file, encoding='utf-8')
-            reader = csv.reader(csv_file)
-
-            # Skip header row (if necessary)
-            next(reader, None)
-
-            # Process each row in the CSV
-            created_records_number = 0
-            for row in reader:
-                try:
-                    # Assuming the CSV columns: amount, category, description, date
-                    trans_date = datetime.strptime(row[0], '%m/%d/%Y')
-                    post_date = datetime.strptime(row[1], '%m/%d/%Y')
-                    merchant = row[2]
-                    amount = float(row[3])
-                    category = row[4]
-
-                    # Create a new expense entry
-                    _, created = Expense.objects.update_or_create(
-                        amount=amount,
-                        transaction_date=trans_date,
-                        defaults={
-                            'description': '',  # Optional - add a description if needed,
-                            'category':category,
-                            'merchant':merchant,
-                            'post_date':post_date,
-                        }
-                    )
-                    if created:
-                        created_records_number += 1
-                except Exception as e:
-                    print(f"Error processing row {row}: {e}")
-            print(f"Created {created_records_number} records")
-            return redirect('expenses:index')
+        if 'discover-csv' in request.POST:
+            process_discover_csv(request)
+        elif 'bofa-csv' in request.POST:
+            process_bof_csv(request)
+        return redirect('expenses:index')
     else:
         form = CSVUploadForm()
+        bof_form = CSVBofUploadForm()
 
-    return render(request, 'expenses/upload_csv.html', {'form': form})
+    return render(request, 'expenses/upload_csv.html', {'form': form, 'bof_form': bof_form})
+
 
 
 @login_required

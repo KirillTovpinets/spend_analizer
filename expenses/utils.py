@@ -5,7 +5,11 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import uuid
+from io import TextIOWrapper
+from .forms import CSVUploadForm, CSVBofUploadForm
+import csv
 from datetime import datetime
+from .models import Expense
 
 # Path to Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'  # Update this path as needed
@@ -189,3 +193,128 @@ def format_to_iso(date_string):
         return None  # If no format matches
     except Exception as e:
         return None
+
+
+def get_bof_category(description):
+    if 'APPLECARD' in description:
+        return 'Apple Card'
+    elif 'Fee' in description or 'FEE' in description:
+        return 'Fee'
+    elif 'Zelle' in description:
+        return 'Zelle'
+    elif 'The Marke' in description or 'THE MARKE' in description:
+        return 'Rent Payment'
+    elif 'MOVING' in description:
+        return 'Moving Expenses'
+    elif 'DISCOVER' in description:
+        return 'Discover Card'
+    elif 'WILLO LABS' in description or 'FOLLETT CORP' in description:
+        return 'Willow Labs'
+    elif 'HMFUSA.com' in description:
+        return 'Hyundai Finance'
+    elif 'IRS TREAS' in description or 'STATE OF' in description:
+        return 'IRS'
+    elif 'CREAMLY' in description:
+        return 'Creamly'
+    elif 'ComEd' in description:
+        return 'ComEd'
+    elif 'USEMBASSY' in description:
+        return 'VISA'
+    elif 'COINBASE' in description:
+        return 'Coinbase'
+    elif 'Afterpay' in description:
+        return 'Afterpay'
+    elif 'Amazon web serv' in description:
+        return 'AWS'
+    elif 'AFFIRM' in description:
+        return 'Affirm'
+    elif 'Uber' in description:
+        return 'Uber'
+    else:
+        return 'Other'
+
+def process_discover_csv(request):
+    form = CSVUploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        # Read the uploaded file
+        csv_file = TextIOWrapper(request.FILES['csv_file'].file, encoding='utf-8')
+        reader = csv.reader(csv_file)
+
+        # Skip header row (if necessary)
+        next(reader, None)
+
+        # Process each row in the CSV
+        created_records_number = 0
+        for row in reader:
+            try:
+                # Assuming the CSV columns: amount, category, description, date
+                trans_date = datetime.strptime(row[0], '%m/%d/%Y')
+                post_date = datetime.strptime(row[1], '%m/%d/%Y')
+                merchant = row[2]
+                amount = float(row[3])
+                category = row[4]
+
+                # Create a new expense entry
+                _, created = Expense.objects.update_or_create(
+                    amount=amount,
+                    transaction_date=trans_date,
+                    defaults={
+                        'description': '',  # Optional - add a description if needed,
+                        'category':category,
+                        'merchant':merchant,
+                        'post_date':post_date,
+                    }
+                )
+                if created:
+                    created_records_number += 1
+            except Exception as e:
+                print(f"Error processing row {row}: {e}")
+        print(f"Created {created_records_number} records")
+    else:
+        print("Form is invalid")
+
+def process_bof_csv(request):
+    form = CSVBofUploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        # Read the uploaded file
+        csv_file = TextIOWrapper(request.FILES['csv_bof_file'].file, encoding='utf-8')
+        reader = csv.reader(csv_file)
+
+        # Skip header row (if necessary)
+        next(reader, None)
+
+        # Process each row in the CSV
+        created_records_number = 0
+        for row in reader:
+            try:
+                # Assuming the CSV columns: amount, category, description, date
+                date = datetime.strptime(row[0], '%m/%d/%Y')
+                description = row[1]
+                if 'ATM' in description or 'Online Banking transfer' in description:
+                  continue
+
+                try:
+                  try:
+                    amount = float(row[2])
+                  except:
+                    remove_commas = row[2].replace(',', '')
+                    amount = float(remove_commas)
+                except:
+                  amount = float(row[3])
+                category = get_bof_category(description)
+
+                _, created = Expense.objects.update_or_create(
+                    amount= (0 - amount),
+                    transaction_date=date,
+                    defaults={
+                        'description': '',
+                        'category':category,
+                        'merchant': description,
+                        'post_date':date,
+                    }
+                )
+                if created:
+                    created_records_number += 1
+            except Exception as e:
+                print(f"Error processing row {row}: {e}")
+        print(f"Created {created_records_number} records")
