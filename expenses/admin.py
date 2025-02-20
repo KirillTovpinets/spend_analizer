@@ -17,7 +17,7 @@ class ReceptInline(admin.TabularInline):
 class ExpenseAdmin(admin.ModelAdmin):
     list_display = ['merchant', 'category', 'amount', 'transaction_date']
     list_filter = ['category', 'created_at']
-    search_fields = ['category', 'description']
+    search_fields = ['category', 'description', 'merchant']
     inlines = [ReceptInline]
 
 

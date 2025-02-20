@@ -163,14 +163,14 @@ def upload_csv(request):
                     category = row[4]
 
                     # Create a new expense entry
-                    _, created = Expense.objects.get_or_create(
-                        category=category,
+                    _, created = Expense.objects.update_or_create(
                         amount=amount,
-                        merchant=merchant,
                         transaction_date=trans_date,
-                        post_date=post_date,
                         defaults={
                             'description': '',  # Optional - add a description if needed,
+                            'category':category,
+                            'merchant':merchant,
+                            'post_date':post_date,
                         }
                     )
                     if created:
