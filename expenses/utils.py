@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import uuid
+from datetime import datetime
 
 # Path to Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'  # Update this path as needed
@@ -23,7 +24,7 @@ def parse_receipt(text):
     lines = text.splitlines()
 
     # Extract the date using a regular expression (matches formats like "01/25/2025" or "2025-01-25")
-    date_pattern = r'\b(\d{1,2}/\d{2}/\d{4})\b|\b(\d{4}-\d{2}-\d{2})\b|\b(\d{2}/\d{2}/\d{2})\b|\b(\d{2}-\d{2}-\d{2})\b'
+    date_pattern = r'(\b(?:\d{1,2}[-/thstndrd]*\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[-/.,]?\s*(?:\d{1,2},?\s*\d{4}|\d{4})|\d{1,2}[-/\.]\d{1,2}[-/\.]\d{4}|\d{4}[-/\.]\d{1,2}[-/\.]\d{1,2}|\d{1,2}-\d{1,2}-\d{2,4}|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}-\d{1,2}-\d{4}|\d{4}-\d{1,2}-\d{1,2})\b)'
     for line in lines:
         date_match = re.search(date_pattern, line)
         if date_match:
@@ -164,3 +165,27 @@ def skew_correction(image):
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
     rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
     return rotated
+
+
+# Function to parse and format a date to ISO format
+def format_to_iso(date_string):
+    try:
+        # Handle various date formats and convert them to ISO format
+        # Try multiple formats (you can extend this as needed)
+        formats = [
+            "%d/%m/%Y",  # 01/01/2020
+            "%Y-%m-%d",  # 2020-01-01
+            "%b %d, %Y",  # Jan 1, 2020
+            "%d-%b-%Y",  # 1-Jan-2020
+            "%m/%d/%Y",  # 12/31/2021
+        ]
+
+        for fmt in formats:
+            try:
+                date_obj = datetime.strptime(date_string, fmt)
+                return date_obj.strftime("%Y-%m-%d")  # Return in ISO format
+            except ValueError:
+                continue
+        return None  # If no format matches
+    except Exception as e:
+        return None

@@ -1,6 +1,24 @@
 {% extends 'base.html' %} {% block content %}
 <h1>Expenses for {{ category }} in {{ month }} {{year}}</h1>
 
+<form class="form-inline my-2 mw-100 navbar-search">
+  <div class="input-group w-100">
+    <input
+      type="text"
+      class="form-control bg-light small flex-grow-1 border-1"
+      placeholder="Search for..."
+      aria-label="Search"
+      aria-describedby="basic-addon2"
+      id="search-input"
+      onkeyup="handleSearch(event)"
+    />
+    <div class="input-group-append">
+      <button class="btn btn-primary" type="button">
+        <i class="fas fa-search fa-sm"></i>
+      </button>
+    </div>
+  </div>
+</form>
 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
   <thead>
     <tr>
@@ -31,4 +49,41 @@
     </tr>
   </tbody>
 </table>
+<script>
+  function handleSearch(event) {
+    let input = document.getElementById("search-input");
+    let filter = input.value.toUpperCase();
+    let table = document.querySelector("table");
+    let tr = table.getElementsByTagName("tr");
+    let total = 0;
+    for (let i = 0; i < tr.length; i++) {
+      let td = tr[i].getElementsByTagName("td")[1];
+      if (td) {
+        let txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+          const amount = tr[i].getElementsByTagName("td")[2]?.textContent || '0';
+          total += parseFloat(amount.replace("$", ""));
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+    const roundedTotal = Math.round(total * 100) / 100;
+    if (roundedTotal !== {{ total}}) {
+      const existingTotalRow = document.getElementById("total-searched-row");
+      if (existingTotalRow) {
+        table.removeChild(existingTotalRow);
+      }
+      const tr = document.createElement("tr");
+      tr.id = "total-searched-row";
+      tr.innerHTML = `<td colspan="2" align="right">Total</td><td colspan="2">$${total.toFixed(
+        2,
+      )}</td>`;
+      table.appendChild(tr);
+    } else if (roundedTotal === {{ total}}) {
+      table.removeChild(document.getElementById("total-searched-row"));
+    }
+  }
+</script>
 {% endblock %}

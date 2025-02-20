@@ -160,6 +160,10 @@
     for (var month = 1; month <= 12; month++) {
         var total = 0;
         categories.forEach(function(category) {
+          console.log(category)
+            if (['Willow Labs'].includes(category)) {
+                return;
+            }
             if (dataByMonth[month] && dataByMonth[month][category]) {
                 total += dataByMonth[month][category];
             }

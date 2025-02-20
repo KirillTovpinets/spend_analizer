@@ -3,7 +3,7 @@ from .models import Receipt, Expense, ExpenseItem
 # Register your models here.
 @admin.register(Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
-    list_display = ['image', 'uploaded_at']
+    list_display = ['image', 'uploaded_at', 'expense']
     list_filter = ['image', 'uploaded_at']
     search_fields = ['uploaded_at']
 

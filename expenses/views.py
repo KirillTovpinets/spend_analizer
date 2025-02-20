@@ -10,8 +10,8 @@ from django.contrib.auth.decorators import login_required
 import csv
 from io import TextIOWrapper
 from datetime import datetime
-from django.db.models import Sum
-from .utils import parse_receipt, preprocess_image, skew_correction, show_image
+from django.db.models import Sum, Q
+from .utils import parse_receipt, preprocess_image, skew_correction, show_image, format_to_iso
 import cv2
 import boto3
 from django.conf import settings
@@ -70,12 +70,12 @@ def upload_receipt(request):
         print("Failed to load image.")
 
 
-    print(receipts)
+    print(format_to_iso(date))
     return render(request, 'expenses/upload.html', {
       'records': data['items'],
       'expense': {
         'merchant': merchant,
-        'post_date': date,
+        'post_date': format_to_iso(date),
         'category': 'Supermarkets'
       },
       'receipts': receipts,
@@ -91,9 +91,13 @@ def list(request):
 
     # Fetch all expenses or filter by the selected year
     if selected_year:
-        expenses = Expense.objects.filter(transaction_date__year=selected_year).exclude(merchant="INTERNET PAYMENT - THANK YOU")
+        expenses = Expense.objects.filter(transaction_date__year=selected_year).exclude(
+           Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
+        )
     else:
-        expenses = Expense.objects.all().exclude(merchant="INTERNET PAYMENT - THANK YOU")
+        expenses = Expense.objects.all().exclude(
+           Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
+           )
 
     # Group expenses by category and month, summing the amounts
     expenses_by_category = expenses.exclude(transaction_date=None).values('category', 'transaction_date__month').annotate(total=Sum('amount')).order_by('transaction_date__month')
@@ -196,7 +200,7 @@ def expense_details(request):
         transaction_date__month=month,
         transaction_date__year=year,
         category=category,
-      ).exclude(merchant='INTERNET PAYMENT - THANK YOU').prefetch_related('receipts')
+      ).exclude(merchant='INTERNET PAYMENT - THANK YOU').order_by('-transaction_date').prefetch_related('receipts')
 
     total = expenses.aggregate(Sum('amount'))['amount__sum']
 
