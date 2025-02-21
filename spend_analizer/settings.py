@@ -109,6 +109,11 @@ DATABASES = {
     }
 }
 
+# settings.py
+
+DROPBOX_APP_KEY = env('DROPBOX_APP_KEY')  # Get from Dropbox App Console
+DROPBOX_APP_SECRET = env('DROPBOX_APP_SECRET')  # Get from Dropbox App Console
+DROPBOX_REDIRECT_URI = env('DROPBOX_REDIRECT_URI')  # Should match the redirect URI set in Dropbox App Console
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
