@@ -32,3 +32,6 @@ class ReceiptForm(forms.ModelForm):
 
 class CSVUploadForm(forms.Form):
     csv_file = forms.FileField()
+
+class CSVBofUploadForm(forms.Form):
+    csv_bof_file = forms.FileField()

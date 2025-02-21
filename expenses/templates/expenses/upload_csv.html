@@ -1,10 +1,36 @@
-{% extends 'base.html' %} 
-{% block content %}
-<h1>Upload CSV</h1>
+{% extends 'base.html' %} {% block content %}
+<div class="card shadow mb-4 mt-4">
+  <div class="card-header">
+    <h6 class="m-0 font-weight-bold text-primary">
+      Upload Discover Transactions
+    </h6>
+  </div>
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="discover-csv" />
+      <div class="d-flex align-items-center justify-content-between">
+        {{ form.as_div }}
+        <button type="submit" class="btn btn-primary">Upload CSV</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit">Upload CSV</button>
-</form>
+<div class="card shadow mb-4 mt-4">
+  <div class="card-header">
+    <h6 class="m-0 font-weight-bold text-primary">Upload BofA Transactions</h6>
+  </div>
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="d-flex align-items-center justify-content-between">
+        {{ bof_form.as_div }}
+        <input type="hidden" name="bofa-csv" />
+        <button type="submit" class="btn btn-primary">Upload CSV</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 {% endblock %}
