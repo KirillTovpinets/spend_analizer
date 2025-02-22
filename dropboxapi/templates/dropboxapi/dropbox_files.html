@@ -1,0 +1,9 @@
+{% extends 'expenses/base.html' %} {% block content %}
+
+<h1>Select a Receipt from Dropbox</h1>
+<form method="post">
+  {% csrf_token %} {{ form.as_div }}
+  <button type="submit" class="btn btn-primary">Extract Text</button>
+</form>
+
+{% endblock %}

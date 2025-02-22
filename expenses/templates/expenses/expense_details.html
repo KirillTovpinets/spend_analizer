@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'expenses/base.html' %} {% block content %}
 <h1>Expenses for {{ category }} in {{ month }} {{year}}</h1>
 
 <form class="form-inline my-2 mw-100 navbar-search">
@@ -32,7 +32,11 @@
     {% for expense in expenses %}
     <tr>
       <td class="align-content-center">{{ expense.transaction_date }}</td>
-      <td class="align-content-center">{{ expense.merchant }}</td>
+      <td class="align-content-center">
+        <a href="{% url 'expenses:receipt_items' expense.id %}"
+          >{{ expense.merchant }}</a
+        >
+      </td>
       <td class="align-content-center">${{ expense.amount }}</td>
       <td class="align-content-center">
         {% if expense.receipts %} {% for receipt in expense.receipts.all %}

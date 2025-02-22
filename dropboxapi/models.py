@@ -11,3 +11,12 @@ class DropboxAccessTokens(models.Model):
     def __str__(self):
         return f"{self.token}"
 
+class DropboxReceipt(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True)
+    file_path = models.CharField(max_length=255)
+    file_name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expense = models.ForeignKey('expenses.Expense', related_name='dropbox_receipts', on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return f"{self.file_name}"

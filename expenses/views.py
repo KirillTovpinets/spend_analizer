@@ -276,3 +276,31 @@ def link_receipt(request):
         receipt.expense = expense
         receipt.save()
     return JsonResponse({'message': 'Receipt linked successfully!'}, status=200)
+
+@login_required
+def receipt_items(request, expense_id):
+  items = ExpenseItem.objects.filter(expense_id=expense_id)
+  total = items.aggregate(Sum('price'))['price__sum']
+  expense = Expense.objects.get(id=expense_id)
+  return render(request, 'expenses/items_list.html', {
+    'items': items,
+    'total': total,
+    'expense_id': expense_id,
+    'receipts': expense.receipts.all()
+  })
+
+def update_items(request, expense_id):
+  if request.method == 'POST':
+    expense = Expense.objects.get(id=expense_id)
+    data = json.loads(request.body)
+    for item in data['data']:
+      ExpenseItem.objects.update_or_create(id=item['id'], defaults={
+        'description': item['description'],
+        'price': item['price'],
+        'total': item['price'],
+        'expense': expense
+      })
+
+    for id in data['removedIds']:
+      ExpenseItem.objects.filter(id=id).delete()
+    return JsonResponse({'message': 'Items updated successfully!'}, status=200)

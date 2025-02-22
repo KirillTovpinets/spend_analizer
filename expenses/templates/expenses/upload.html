@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'expenses/base.html' %} {% block content %}
+
+{% if is_dropbox != True %}
 <div class="card shadow mb-4 mt-4">
   <div class="card-header">
     <h6 class="m-0 font-weight-bold text-primary">Upload your receipt</h6>
@@ -11,6 +13,7 @@
   </div>
 </form></div>
 </div>
+{% endif %}
 
 {% if receipts %}
 <p>
@@ -20,11 +23,19 @@
 
   <div class="d-flex flex-column">
     <a href="{{ receipt.url }}">
+    {% if receipt.image %}
+    <img
+      src="data:image/png;base64,{{ receipt.image }}"
+      alt="Receipt"
+      style="width: 100px; height: 200px"
+    />
+    {% else %}
     <img
       src="{{ receipt.url }}"
       alt="Receipt"
       style="width: 100px; height: 200px"
     />
+    {% endif %}
   </a>
   <button type="button" class="btn btn-danger mt-3" onclick="handleRemoveRecept({{receipt.id}})">Remove</button>
   </div>
@@ -175,7 +186,8 @@
   }
 
   function handleRemoveRecept(id) {
-    fetch('/expenses/remove-receipt/' + id + '/', {
+    const removeEndpoint = "{{ is_dropbox|yesno:"/dropbox/remove-receipt/,/expenses/remove-receipt/" }}"
+    fetch(removeEndpoint + id + '/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -225,7 +237,8 @@
         total: price
       });
     }
-    fetch('/expenses/link-receipt/', {
+    const linkEndpoint = "{{ is_dropbox|yesno:"/dropbox/link-receipts/,/expenses/link-receipts/" }}"
+    fetch(linkEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -13,4 +13,6 @@ urlpatterns = [
     path('update-expense-info/', views.update_expense_info, name='update_expense_info'),
     path('remove-receipt/<int:receipt_id>/', views.remove_receipt, name='remove_receipt'),
     path('link-receipt/', views.link_receipt, name='link_receipt'),
+    path('<int:expense_id>/save-items/', views.update_items, name='save_items'),
+    path('receipt-items/<int:expense_id>/', views.receipt_items, name='receipt_items'),
 ]
