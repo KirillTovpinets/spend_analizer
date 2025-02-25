@@ -280,11 +280,10 @@ def link_receipt(request):
 @login_required
 def receipt_items(request, expense_id):
   items = ExpenseItem.objects.filter(expense_id=expense_id)
-  total = items.aggregate(Sum('price'))['price__sum']
   expense = Expense.objects.get(id=expense_id)
   return render(request, 'expenses/items_list.html', {
     'items': items,
-    'total': total,
+    'total': expense.amount,
     'expense_id': expense_id,
     'receipts': expense.receipts.all()
   })

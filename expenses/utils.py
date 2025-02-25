@@ -202,7 +202,7 @@ def get_bof_category(description):
         return 'Fee'
     elif 'Zelle' in description:
         return 'Zelle'
-    elif 'The Marke' in description or 'THE MARKE' in description:
+    elif 'The Marke' in description or 'THE MARKE' in description or 'Check' in description:
         return 'Rent Payment'
     elif 'MOVING' in description:
         return 'Moving Expenses'
@@ -228,7 +228,7 @@ def get_bof_category(description):
         return 'AWS'
     elif 'AFFIRM' in description:
         return 'Affirm'
-    elif 'Uber' in description:
+    elif 'Uber' in description or 'UBER' in description:
         return 'Uber'
     else:
         return 'Other'

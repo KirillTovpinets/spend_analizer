@@ -14,77 +14,90 @@
 </form></div>
 </div>
 {% endif %}
-
-{% if receipts %}
-<p>
-  Receipt uploaded:
-  <div class="d-flex" style="gap: 20px">
-    {% for receipt in receipts %}
-
-  <div class="d-flex flex-column">
-    <a href="{{ receipt.url }}">
-    {% if receipt.image %}
-    <img
-      src="data:image/png;base64,{{ receipt.image }}"
-      alt="Receipt"
-      style="width: 100px; height: 200px"
-    />
-    {% else %}
-    <img
-      src="{{ receipt.url }}"
-      alt="Receipt"
-      style="width: 100px; height: 200px"
-    />
-    {% endif %}
-  </a>
-  <button type="button" class="btn btn-danger mt-3" onclick="handleRemoveRecept({{receipt.id}})">Remove</button>
-  </div>
-  {% endfor %}
-  </div>
-</p>
-{% endif %}
 {% if expense %}
 <h2>Info</h2>
-<div class="card shadow mb-4">
-  <div class="card-header py-3">
-    <h6 class="m-0 font-weight-bold text-primary d-flex justify-content-between align-items-center">Receipt Info
-      <div class="button-group">
-        <button type="button" class="btn btn-success" id="link-button">Link</button>
+<div class="row">
+  <div class="col-md-6">
+    {% if receipts %}
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary d-flex justify-content-between align-items-center">
+          Receipt uploaded:
+        </h6>
       </div>
-    </h6>
-  </div>
-  <div class="card-body info">
-    <div class="d-flex align-items-center justify-content-between mx-2">
-      <select value="{{ expense.merchant }}" class="form-control mr-2" name="merchant">
-        <option {% if expense.merchant == "aldi" %} selected {% endif %} value="aldi">Aldi</option>
-        <option {% if expense.merchant == "amazon" %} selected {% endif %} value="amazon">Amazon</option>
-        <option {% if expense.merchant == "bestbuy" %} selected {% endif %} value="bestbuy">Best Buy</option>
-        <option {% if expense.merchant == "costco" %} selected {% endif %} value="costco">Costco</option>
-        <option {% if expense.merchant == "jerysfruitmarket" %} selected {% endif %} value="jerysfruitmarket">Jery's Fruit Market</option>
-        <option {% if expense.merchant == "jewelosco" %} selected {% endif %} value="jewelosco">JewelOsco</option>
-        <option {% if expense.merchant == "marianos" %} selected {% endif %} value="marianos">Marianos</option>
-        <option {% if expense.merchant == "other" %} selected {% endif %} value="other">Other</option>
-        <option {% if expense.merchant == "target" %} selected {% endif %} value="target">Target</option>
-        <option {% if expense.merchant == "traderjoes" %} selected {% endif %} value="traderjoes">Trader Joes</option>
-        <option {% if expense.merchant == "wallgreens" %} selected {% endif %} value="wallgreens">Wallgreens</option>
-        <option {% if expense.merchant == "walmart" %} selected {% endif %} value="walmart">Walmart</option>
-        <option {% if expense.merchant == "wholefoods" %} selected {% endif %} value="wholefoods">Whole Foods</option>
-        <option {% if expense.merchant == "other" %} selected {% endif %} value="other">Other</option>
-      </select>
-      <input type="date" name="post_date" class="form-control mr-2" value="{{ expense.post_date }}">
-      <select name="category" class="form-control mr-2" value="{{ expense.category }}">
-        <option value="Supermarkets">Supermarkets</option>
-        <option value="Merchandise">Merchandise</option>
+      <div class="card-body info">
+        <p>
 
-      </select>
-      <input type="hidden" name="id" value="{{ expense.id }}">
-      <button class="btn btn-primary" id="edit-info-button">Edit</button>
+          <div class="d-flex flex-column" style="gap: 20px">
+            {% for receipt in receipts %}
+
+          <div class="d-flex flex-column">
+            <a href="{{ receipt.url }}">
+            {% if receipt.image %}
+            <img
+              src="data:image/png;base64,{{ receipt.image }}"
+              alt="Receipt"
+              style="height: 700px;"
+            />
+            {% else %}
+            <img
+              src="{{ receipt.url }}"
+              alt="Receipt"
+              style="width: 100%;"
+            />
+            {% endif %}
+          </a>
+          <button type="button" class="btn btn-danger mt-3" onclick="handleRemoveRecept({{receipt.id}})">Remove</button>
+          </div>
+          {% endfor %}
+          </div>
+        </p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+<div class="col-md-6">
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary d-flex justify-content-between align-items-center">Receipt Info
+        <div class="button-group">
+          <button type="button" class="btn btn-success" id="link-button">Link</button>
+        </div>
+      </h6>
+    </div>
+    <div class="card-body info">
+      <div class="d-flex align-items-center justify-content-between mx-2">
+        <select value="{{ expense.merchant }}" class="form-control mr-2" name="merchant">
+          <option {% if expense.merchant == "aldi" %} selected {% endif %} value="Aldi">Aldi</option>
+          <option {% if expense.merchant == "amazon" %} selected {% endif %} value="Amazon">Amazon</option>
+          <option {% if expense.merchant == "bestbuy" %} selected {% endif %} value="Bestbuy">Best Buy</option>
+          <option {% if expense.merchant == "costco" %} selected {% endif %} value="Costco">Costco</option>
+          <option {% if expense.merchant == "cvs" %} selected {% endif %} value="FruitfulYield">Fruitful Yield</option>
+          <option {% if expense.merchant == "jerysfruitmarket" %} selected {% endif %} value="JerysFruitMarket">Jery's Fruit Market</option>
+          <option {% if expense.merchant == "jewelosco" %} selected {% endif %} value="JewelOsco">JewelOsco</option>
+          <option {% if expense.merchant == "marianos" %} selected {% endif %} value="Marianos">Marianos</option>
+          <option {% if expense.merchant == "target" %} selected {% endif %} value="Target">Target</option>
+          <option {% if expense.merchant == "traderjoes" %} selected {% endif %} value="TraderJoes">Trader Joes</option>
+          <option {% if expense.merchant == "wallgreens" %} selected {% endif %} value="Wallgreens">Wallgreens</option>
+          <option {% if expense.merchant == "walmart" %} selected {% endif %} value="Walmart">Walmart</option>
+          <option {% if expense.merchant == "wholefoods" %} selected {% endif %} value="WholeFoods">Whole Foods</option>
+          <option {% if expense.merchant == "other" %} selected {% endif %} value="Other">Other</option>
+        </select>
+        <input type="date" name="post_date" class="form-control mr-2" value="{{ expense.post_date }}">
+        <select name="category" class="form-control mr-2" value="{{ expense.category }}">
+          <option value="Supermarkets">Supermarkets</option>
+          <option value="Merchandise">Merchandise</option>
+
+        </select>
+        <input type="hidden" name="id" value="{{ expense.id }}">
+        <button class="btn btn-primary" id="edit-info-button">Edit</button>
+      </div>
     </div>
   </div>
-</div>
+
 {% endif %}
 {% if records %}
-<h2>Expenses</h2>
 <div class="card shadow mb-4">
   <div class="card-header py-3">
     <h6 class="m-0 font-weight-bold text-primary d-flex align-items-center justify-content-between">Receipt Items
@@ -135,6 +148,8 @@
       </div>
     </div>
   </div>
+</div>
+</div>
 </div>
 <script>
   const inputs = document.querySelectorAll('table input');

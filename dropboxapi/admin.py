@@ -3,7 +3,7 @@ from .models import DropboxAccessTokens, DropboxReceipt
 # Register your models here.
 @admin.register(DropboxAccessTokens)
 class DropboxAccessTokensAdmin(admin.ModelAdmin):
-    list_display = ['token']
+    list_display = ['token', 'expires_in', 'created_at']
     list_filter = ['token']
     search_fields = ['token']
 

@@ -12,13 +12,17 @@ import pytesseract
 from expenses.utils import parse_receipt, format_to_iso
 import json
 import base64
+from datetime import datetime
 from expenses.models import Expense, ExpenseItem
 # Redirect user to Dropbox authorization page
 def dropbox_login(request):
     user = request.user
     try:
-        DropboxAccessTokens.objects.get(user=user)
-        return redirect('dropboxapi:dropbox_files')
+        token = DropboxAccessTokens.objects.get(user=user)
+        if token.is_expired() != True:
+          return redirect('dropboxapi:dropbox_files')
+        else:
+          token.delete()
     except DropboxAccessTokens.DoesNotExist:
         pass
     # Your Dropbox app credentials
@@ -84,6 +88,9 @@ def list_files(request):
 
       image = Image.open(BytesIO(file_content))
 
+      if image.mode != 'RGB':
+        image = image.convert('RGB')
+
       buffer = BytesIO()
       image.save(buffer, format='JPEG')
       image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
@@ -92,7 +99,7 @@ def list_files(request):
 
       data = parse_receipt(text)
       total = data['total'] if data['total'] else 0
-      date = data['date'] if data['date'] else ''
+      date = data['date'] if data['date'] else datetime.now().isoformat()
       merchant = data['merchant'] if data['merchant'] else ''
 
       return render(request, 'expenses/upload.html', {

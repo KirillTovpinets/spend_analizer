@@ -18,7 +18,7 @@
 
 
 <!-- Total of filtered expenses -->
-<h3>Total Amount: ${{ total }}</h3>
+<h3>Total Amount: $<span id="total">{{ total }}</span></h3>
 
 <!-- <ul>
   {% for expense in page_obj %}
@@ -160,8 +160,7 @@
     for (var month = 1; month <= 12; month++) {
         var total = 0;
         categories.forEach(function(category) {
-          console.log(category)
-            if (['Willow Labs'].includes(category)) {
+            if (['Willow Labs', 'Income', 'Uber'].includes(category)) {
                 return;
             }
             if (dataByMonth[month] && dataByMonth[month][category]) {
@@ -197,6 +196,34 @@
                 tooltip: {
                     mode: 'index',
                     intersect: false,
+                },
+                legend:{
+                  onClick: (e, legendItem, legend) => {
+                    const index = legendItem.datasetIndex;
+                    const chart = legend.chart;
+
+                    // Check if the clicked dataset is already the only visible one
+                    const activeDatasetCount = chart.data.datasets.filter(ds => ds.hidden !== true).length;
+
+                    // If there's only one dataset visible, reset visibility of all datasets
+                    if (activeDatasetCount === 1 && chart.isDatasetVisible(index)) {
+                        chart.data.datasets.forEach((dataset) => {
+                            dataset.hidden = false;
+                        });
+
+                        document.getElementById('total').innerText = {{ total }};
+                    } else {
+                        // Hide all datasets except the one clicked
+                        chart.data.datasets.forEach((dataset, i) => {
+                            dataset.hidden = i !== index;
+                        });
+
+                        const selectedDataset = chart.data.datasets[index];
+                        const totalAmount = selectedDataset.data.reduce((acc, val) => acc + val, 0);
+                        document.getElementById('total').innerText = totalAmount;
+                    }
+                    chart.update();
+                  }
                 }
             },
             // Add custom function to draw totals
