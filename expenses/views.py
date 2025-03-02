@@ -2,21 +2,22 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from .models import Receipt, Expense, ExpenseItem
-from .forms import ReceiptForm, CSVUploadForm, CSVBofUploadForm
+from .forms import CSVUploadForm, CSVBofUploadForm
 import pytesseract
 import json
-from PIL import Image
 from django.contrib.auth.decorators import login_required
-import csv
-from io import TextIOWrapper
-from datetime import datetime
 from django.db.models import Sum, Q
 from .utils import parse_receipt, preprocess_image, skew_correction, show_image, get_bof_category, process_discover_csv, process_bof_csv, format_to_iso
 import cv2
 import boto3
 from django.conf import settings
 import numpy as np
-
+from dropboxapi.models import DropboxAccessTokens, DropboxReceipt
+from dropboxapi.utils import download_receipt
+import dropbox
+import io
+from PIL import Image
+import base64
 s3 = boto3.client('s3')
 pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 @login_required
@@ -281,11 +282,27 @@ def link_receipt(request):
 def receipt_items(request, expense_id):
   items = ExpenseItem.objects.filter(expense_id=expense_id)
   expense = Expense.objects.get(id=expense_id)
+  dropbox_receipts = expense.dropbox_receipts.all()
+  if(len(dropbox_receipts) > 0):
+    token = DropboxAccessTokens.objects.get(user=request.user).token
+    images = []
+    for dropbox_receipt in dropbox_receipts:
+      file_content = download_receipt(request, dropbox_receipt.file_name)
+      image = Image.open(io.BytesIO(file_content))
+
+      if image.mode != 'RGB':
+          image = image.convert('RGB')
+      buffer = io.BytesIO()
+      image.save(buffer, format='JPEG')
+      image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+      images.append(image_base64)
+
   return render(request, 'expenses/items_list.html', {
     'items': items,
     'total': expense.amount,
     'expense_id': expense_id,
-    'receipts': expense.receipts.all()
+    'receipts': expense.receipts.all(),
+    'dropbox_receipts': images
   })
 
 def update_items(request, expense_id):

@@ -13,4 +13,4 @@ class DropboxReceiptForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         print(files)
-        self.fields['file_name'].choices = [(file['name'], file['path']) for file in files]
+        self.fields['file_name'].choices = [(file['path'], file['name']) for file in files]

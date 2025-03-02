@@ -4,6 +4,8 @@ from django.http import JsonResponse
 import dropbox
 from django.shortcuts import render
 from django.conf import settings
+import urllib.parse
+from django.db.models import Q
 
 
 def list_receipts(request):
@@ -16,22 +18,33 @@ def list_receipts(request):
   if not access_token:
       return JsonResponse({'error': 'User is not authenticated with Dropbox.'})
 
-  dbx = dropbox.Dropbox(access_token)
+
   try:
-      path = '/receipts/'
-      result = dbx.files_list_folder(path)
-      files = [{'name': file.name, 'path': file.path_display} for file in result.entries]
-      return files
+      dbx = dropbox.Dropbox(access_token)
+      return fetch_files(dbx=dbx)
   except dropbox.exceptions.ApiError as e:
       return []
 
+def fetch_files(dbx, path='/receipts/'):
+    result = dbx.files_list_folder(path)
+    files = []
+    for entry in result.entries:
+      existed = DropboxReceipt.objects.filter(Q(file_name=entry.name)|Q(file_name=entry.path_display)).exists()
+      if existed:
+         continue
+
+      if(isinstance(entry, dropbox.files.FileMetadata)):
+        files.append({'name': entry.name, 'path': entry.path_display})
+      elif(isinstance(entry, dropbox.files.FolderMetadata)):
+        files += fetch_files(dbx, entry.path_display)
+    return files
 
 def download_receipt(request, file_path):
-   user = request.user
+  user = request.user
 
-   access_token = DropboxAccessTokens.objects.get(user=user).token
-   dbx = dropbox.Dropbox(access_token)
+  access_token = DropboxAccessTokens.objects.get(user=user).token
+  dbx = dropbox.Dropbox(access_token)
 
-   metadata, response = dbx.files_download('/receipts/' + file_path)
+  metadata, response = dbx.files_download(file_path)
 
-   return response.content
+  return response.content
