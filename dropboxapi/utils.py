@@ -20,7 +20,10 @@ def list_receipts(request):
   try:
       path = '/receipts/'
       result = dbx.files_list_folder(path)
+      saved_files = DropboxReceipt.objects.filter(user=user)
+      saved_files = [file.file_name for file in saved_files]
       files = [{'name': file.name, 'path': file.path_display} for file in result.entries]
+      files = [file for file in files if file['name'] not in saved_files]
       return files
   except dropbox.exceptions.ApiError as e:
       return []
