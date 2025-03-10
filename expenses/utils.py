@@ -268,7 +268,7 @@ def process_discover_csv(request):
                 if created:
                     created_records_number += 1
             except Exception as e:
-                print(f"Error processing row {row}: {e}")
+                print(f"Error processing Discover row {row}: {e}")
         print(f"Created {created_records_number} records")
     else:
         print("Form is invalid")

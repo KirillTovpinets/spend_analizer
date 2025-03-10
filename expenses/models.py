@@ -6,6 +6,7 @@ class Receipt(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)  # Date when the receipt was uploaded
     expense = models.ForeignKey('Expense', related_name="receipts", on_delete=models.CASCADE, null=True)  # Link receipt to an expense
 class Expense(models.Model):
+    id = models.AutoField(primary_key=True)
     category = models.CharField(max_length=100, null=True)  # Expense category (e.g., Grocery, Entertainment)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)  # Expense amount
     description = models.CharField(max_length=255, blank=True, null=True)  # Optional description
