@@ -230,8 +230,18 @@ def get_bof_category(description):
         return 'Affirm'
     elif 'Uber' in description or 'UBER' in description:
         return 'Uber'
+    elif 'IHERB' in description:
+        return 'IHERB'
     else:
         return 'Other'
+
+def get_discover_category(merchant, category):
+    if 'IHERB' in merchant:
+        return 'IHERB'
+    elif 'AMAZON' in merchant:
+        return 'Amazon'
+    else:
+        return category
 
 def process_discover_csv(request):
     form = CSVUploadForm(request.POST, request.FILES)
@@ -252,7 +262,7 @@ def process_discover_csv(request):
                 post_date = datetime.strptime(row[1], '%m/%d/%Y')
                 merchant = row[2]
                 amount = float(row[3])
-                category = row[4]
+                category = get_discover_category(merchant, row[4])
 
                 # Create a new expense entry
                 _, created = Expense.objects.update_or_create(

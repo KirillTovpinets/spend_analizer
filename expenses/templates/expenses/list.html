@@ -160,7 +160,7 @@
     for (var month = 1; month <= 12; month++) {
         var total = 0;
         categories.forEach(function(category) {
-            if (['Willow Labs', 'Income', 'Uber'].includes(category)) {
+            if (['Willow Labs', 'Income', 'Uber', 'IRS'].includes(category)) {
                 return;
             }
             if (dataByMonth[month] && dataByMonth[month][category]) {
