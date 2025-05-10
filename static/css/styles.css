@@ -10323,3 +10323,9 @@ footer.sticky-footer .copyright {
 body.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
+
+#success-alert {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}

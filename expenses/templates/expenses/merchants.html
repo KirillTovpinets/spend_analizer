@@ -1,0 +1,51 @@
+{% extends 'expenses/base.html' %} {% block content %}
+<div class="container-fluid">
+  <h1>Merchants</h1>
+
+  <!-- Year filter form -->
+  <form method="get" class="col-md-12 mb-4">
+    <label for="year">Filter by Year:</label>
+    <select
+      class="form-control custom-select"
+      name="year"
+      id="year"
+      onchange="this.form.submit()"
+    >
+      <option value="">All Years</option>
+      {% for year in years %}
+      <option value="{{ year.year }}"
+        {% if year.year|stringformat:"s" == selected_year %} selected {% endif %}
+        >{{ year.year }}</option
+      >
+      {% endfor %}
+    </select>
+    </form>
+  <div class="row">
+    {% for merchant in known_merchants %}
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+              >
+                <a href="{% url 'expenses:merchant_transactions' merchant.name %}"
+                  >{{merchant.name}}</a
+                >
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                ${{merchant.total}}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-calendar fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -18,6 +18,7 @@ import dropbox
 import io
 from PIL import Image
 import base64
+import datetime
 s3 = boto3.client('s3')
 pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 @login_required
@@ -89,6 +90,7 @@ def upload_receipt(request):
 def list(request):
     # Get selected year for filtering
     selected_year = request.GET.get('year')
+    current_year = datetime.datetime.now().year
 
     # Fetch all expenses or filter by the selected year
     if selected_year:
@@ -96,7 +98,8 @@ def list(request):
            Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
         )
     else:
-        expenses = Expense.objects.all().exclude(
+        selected_year = current_year
+        expenses = Expense.objects.filter(transaction_date__year=current_year).exclude(
            Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
            )
 
@@ -301,6 +304,7 @@ def receipt_items(request, expense_id):
     'items': items,
     'total': expense.amount,
     'expense_id': expense_id,
+    'expense_name': expense.merchant,
     'receipts': expense.receipts.all(),
     'dropbox_receipts': images
   })
@@ -320,3 +324,89 @@ def update_items(request, expense_id):
     for id in data['removedIds']:
       ExpenseItem.objects.filter(id=id).delete()
     return JsonResponse({'message': 'Items updated successfully!'}, status=200)
+
+
+def update_title(request, expense_id):
+  if request.method == 'POST':
+    expense = Expense.objects.get(id=expense_id)
+    data = json.loads(request.body)
+    expense.merchant = data['title']
+    expense.save()
+    return JsonResponse({'message': 'Title updated successfully!'}, status=200)
+
+def merchants(request):
+   selected_year = request.GET.get('year')
+   current_year = datetime.datetime.now().year
+
+    # Fetch all expenses or filter by the selected year
+   if selected_year:
+     merchants = Expense.objects.filter(transaction_date__year=selected_year).exclude(
+           Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
+        )
+   else:
+      selected_year = current_year
+      merchants = Expense.objects.filter(transaction_date__year=current_year).exclude(
+          Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
+          )
+   known_merchants = [
+      'Walmart', 'Target', 'Amazon', 'Costco', 'Kroger', 'Safeway', 'CVS', 'Walgreens', 'IHERB', 'Marianos'
+      'Best Buy', 'Home Depot', 'Lowe\'s', 'Aldi', 'Trader Joe\'s', 'Whole Foods',
+      'Sam\'s Club', 'BJ\'s Wholesale', 'Meijer', 'Publix', 'Giant Eagle', 'Food Lion',
+      'Panda Express', 'Chipotle', 'Starbucks', 'Dunkin\' Donuts', 'McDonald\'s',
+      'Burger King', 'Subway', 'Domino\'s', 'Pizza Hut', 'Taco Bell', 'KFC',
+      'Wendy\'s', 'Panera Bread', 'Chick-fil-A', 'Olive Garden', 'Red Lobster',
+      'Outback Steakhouse', 'Applebee\'s', 'Buffalo Wild Wings', 'IHOP', 'Denny\'s',
+      'Cracker Barrel', 'Cheesecake Factory', 'Texas Roadhouse', 'LongHorn Steakhouse',
+      'Red Robin', 'Ruby Tuesday', 'TGI Friday\'s', 'Carrabba\'s Italian Grill', 'Jewel Osco',
+      'Maggiano\'s Little Italy', 'P.F. Chang\'s', 'Benihana', 'Sushi', 'Thai']
+
+   merchant_names = [merchant.merchant for merchant in merchants]
+   merchant_names = set(merchant_names)
+
+   filtered_known_merchants = []
+   for known_merchant in known_merchants:
+    if known_merchant.lower() in ' '.join(merchant_names).lower():
+      filtered_known_merchants.append({
+         'name': known_merchant,
+         'total': merchants.filter(merchant__icontains=known_merchant).aggregate(Sum('amount'))['amount__sum'],
+      })
+   years = Expense.objects.dates('transaction_date', 'year', order='DESC')
+
+   return render(request, 'expenses/merchants.html', {
+        'known_merchants': filtered_known_merchants,
+        "years": years,
+        "selected_year": selected_year,
+  })
+
+
+def merchant_transactions(request, merchant_name):
+
+  selected_year = request.GET.get('year')
+  current_year = datetime.datetime.now().year
+
+    # Fetch all expenses or filter by the selected year
+  if selected_year:
+    expenses = Expense.objects.filter(merchant__icontains=merchant_name, transaction_date__year=selected_year).exclude(
+           Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
+        )
+  else:
+    selected_year = current_year
+    expenses = Expense.objects.filter(merchant__icontains=merchant_name, transaction_date__year=current_year).exclude(
+      Q(merchant="INTERNET PAYMENT - THANK YOU") | Q(category="Discover Card")
+    )
+
+  # Fetch the paginated expenses filtered by the selected merchant
+  expenses = expenses.order_by('-transaction_date').prefetch_related('receipts')
+  # Get the distinct merchant names for the dropdown
+
+
+  total = expenses.aggregate(Sum('amount'))['amount__sum']
+  years = Expense.objects.dates('transaction_date', 'year', order='DESC')
+
+  return render(request, 'expenses/merchant_transactions.html', {
+      'expenses': expenses,
+      'merchant_name': merchant_name,
+      'years': years,
+      'selected_year': selected_year,
+      'total': total
+  })
