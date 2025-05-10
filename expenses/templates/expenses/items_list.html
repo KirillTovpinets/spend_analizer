@@ -59,6 +59,7 @@
       </div>
     </div>
   </div>
+  <<<<<<< Updated upstream
   <div class="col-md-6 ml-auto">
     <div class="card shadow mb-4 mt-4">
       <div class="card-header">
@@ -75,185 +76,319 @@
             <button class="btn btn-primary ml-3" onclick="handleAddRow()">
               Add Item
             </button>
-          </div>
-        </div>
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Price</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in items %}
-            <tr id="item-{{ item.id }}">
-              <td>
-                <input
-                  class="form-control"
-                  type="text"
-                  name="description_{{ item.id }}"
-                  value="{{ item.description }}"
-                  readonly
-                />
-              </td>
-              <td>
-                <input
-                  class="form-control"
-                  type="number"
-                  name="price_{{ item.id }}"
-                  value="{{ item.price }}"
-                  readonly
-                />
-              </td>
-              <td>
-                <div class="button-group">
-                  <button
-                    class="btn btn-danger"
-                    onclick="handleRemoveItem('{{item.id}}')"
-                  >
-                    Remove
-                  </button>
-                  <button
-                    class="btn btn-primary"
-                    onclick="handleEditItem('{{item.id}}')"
-                  >
-                    Edit
-                  </button>
+            =======
+            <div class="col-md-6">
+              <div class="card shadow mb-4 mt-4">
+                <div class="card-header">
+                  <h6 class="m-0 font-weight-bold text-primary">
+                    List of Items In the Receipt
+                  </h6>
                 </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        <!-- Save changes -->
-        <input
-          type="hidden"
-          name="csrfmiddlewaretoken"
-          value="{{ csrf_token }}"
-        />
-        <button class="btn btn-primary" onclick="handleSaveChanges()">
-          Save Changes
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %} {% block scripts %}
-<style>
-  .sticky-column {
-    position: fixed;
-    top: 80px; /* Adjust as needed */
-    width: 40%;
-    z-index: 1020; /* Ensure it stays above other content */
-    background-color: white; /* Prevent overlap issues */
-  }
-</style>
-<script>
-  function handleEditTitle() {
-    const title = document.getElementById("title");
-    const titleInput = document.getElementById("title-input");
-    const editButton = document.getElementById("edit-title");
-    editButton.classList.add("d-none");
-    title.classList.add("d-none");
-    titleInput.classList.remove("d-none");
-    document.getElementById("save-title").classList.remove("d-none");
-    document.getElementById("cancel-title").classList.remove("d-none");
-  }
-  function handleSaveTitle() {
-    const title = document.getElementById("title");
-    const titleInput = document.getElementById("title-input");
-    const editButton = document.getElementById("edit-title");
-    editButton.classList.remove("d-none");
+                <div class="card-body">
+                  <!-- Display total as plain text -->
+                  <div
+                    class="d-flex justify-content-between my-4 align-items-center"
+                  >
+                    <h4 class="mb-0">Total</h4>
+                    <div class="d-flex align-items-center">
+                      <h2 class="mb-0">{{ total }}</h2>
+                      <button
+                        class="btn btn-primary ml-3"
+                        onclick="handleAddRow()"
+                      >
+                        Add Item
+                      </button>
+                    </div>
+                    >>>>>>> Stashed changes
+                  </div>
+                </div>
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Price</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in items %}
+                    <tr id="item-{{ item.id }}">
+                      <td>
+                        <input
+                          class="form-control"
+                          type="text"
+                          name="description_{{ item.id }}"
+                          value="{{ item.description }}"
+                          readonly
+                        />
+                      </td>
+                      <td>
+                        <input
+                          class="form-control"
+                          type="number"
+                          name="price_{{ item.id }}"
+                          value="{{ item.price }}"
+                          readonly
+                        />
+                      </td>
+                      <td>
+                        <div class="button-group">
+                          <button
+                            class="btn btn-danger"
+                            onclick="handleRemoveItem('{{item.id}}')"
+                          >
+                            Remove
+                          </button>
+                          <button
+                            class="btn btn-primary"
+                            onclick="handleEditItem('{{item.id}}')"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <!-- Save changes -->
+                <input
+                  type="hidden"
+                  name="csrfmiddlewaretoken"
+                  value="{{ csrf_token }}"
+                />
+                <button class="btn btn-primary" onclick="handleSaveChanges()">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+          <<<<<<< Updated upstream ======= {% endblock %} {% block scripts %}
+          <script>
+            removedIds = [];
+            function handleRemoveItem(itemId) {
+              let item = document.getElementById(`item-${itemId}`);
+              item.remove();
+              removedIds.push(itemId);
+            }
 
-    title.classList.remove("d-none");
-    titleInput.classList.add("d-none");
-    document.getElementById("save-title").classList.add("d-none");
-    document.getElementById("cancel-title").classList.add("d-none");
+            function showAlert(data) {
+              const alert = document.getElementById("success-alert");
+              alert.classList.remove("d-none");
+              setTimeout(() => {
+                alert.classList.add("d-none");
+              }, 3000);
+              const title = alert.querySelector(".title");
+              title.innerHTML = data.message;
+            }
 
-    fetch("/expenses/{{expense_id}}/save-title/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
-          .value,
-      },
-      body: JSON.stringify({ title: titleInput.value }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        title.innerHTML = titleInput.value;
-        return data;
-      })
-      .then(showAlert);
-  }
-  function handleCancelTitle() {
-    const title = document.getElementById("title");
-    const titleInput = document.getElementById("title-input");
-    const editButton = document.getElementById("edit-title");
-    editButton.classList.remove("d-none");
-    title.classList.remove("d-none");
-    titleInput.classList.add("d-none");
-    document.getElementById("save-title").classList.add("d-none");
-    document.getElementById("cancel-title").classList.add("d-none");
-  }
-  removedIds = [];
-  function handleRemoveItem(itemId) {
-    let item = document.getElementById(`item-${itemId}`);
-    item.remove();
-    removedIds.push(itemId);
-  }
+            function handleEditItem(itemId) {
+              let item = document.getElementById(`item-${itemId}`);
+              let description = item.querySelector(
+                `input[name="description_${itemId}"]`,
+              );
+              let price = item.querySelector(`input[name="price_${itemId}"]`);
+              description.readOnly = false;
+              price.readOnly = false;
+            }
 
-  function showAlert(data) {
-    const alert = document.getElementById("success-alert");
-    alert.classList.remove("d-none");
-    setTimeout(() => {
-      alert.classList.add("d-none");
-    }, 3000);
-    const title = alert.querySelector(".title");
-    title.innerHTML = data.message;
-  }
+            function handleSaveChanges() {
+              const items = document.querySelectorAll("table input");
+              let data = [];
+              for (item of items) {
+                let [key, id] = item.name.split("_");
+                const existingItem = data.find((i) => i.id === id);
+                if (!existingItem) {
+                  data.push({ id, [key]: item.value });
+                } else {
+                  existingItem[key] = item.value;
+                }
+              }
+              fetch("/expenses/{{expense_id}}/save-items/", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": document.querySelector(
+                    "[name=csrfmiddlewaretoken]",
+                  ).value,
+                },
+                body: JSON.stringify({ data, removedIds }),
+              })
+                .then((response) => response.json())
+                .then(showAlert)
+                .then(showAlert);
+            }
 
-  function handleEditItem(itemId) {
-    let item = document.getElementById(`item-${itemId}`);
-    let description = item.querySelector(`input[name="description_${itemId}"]`);
-    let price = item.querySelector(`input[name="price_${itemId}"]`);
-    description.readOnly = false;
-    price.readOnly = false;
-  }
+            function handleAddRow() {
+              const table = document.querySelector("table tbody");
+              const newRow = document.createElement("tr");
+              const randomId = Math.floor(Math.random() * 1000);
+              newRow.id = `item-${randomId}`;
+              newRow.innerHTML = `
+        <td>
+          <input class="form-control" type="text" name="description_${randomId}" />
+        </td>
+        <td>
+          <input class="form-control" type="number" name="price_${randomId}" />
+        </td>
+        <td>
+          <button class="btn btn-danger" onclick="handleRemoveItem('${randomId}')">
+            Remove
+          </button>
+        </td>
+      `;
+              table.appendChild(newRow);
+            }
 
-  function handleSaveChanges() {
-    const items = document.querySelectorAll("table input");
-    let data = [];
-    for (item of items) {
-      let [key, id] = item.name.split("_");
-      const existingItem = data.find((i) => i.id === id);
-      if (!existingItem) {
-        data.push({ id, [key]: item.value });
-      } else {
-        existingItem[key] = item.value;
-      }
-    }
-    fetch("/expenses/{{expense_id}}/save-items/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
-          .value,
-      },
-      body: JSON.stringify({ data, removedIds }),
-    })
-      .then((response) => response.json())
-      .then(showAlert)
-      .then(showAlert);
-  }
+            function handleEditTitle() {
+              const title = document.getElementById("expense-name-title");
+              const input = document.getElementById("expense-name-input");
+              const button = document.querySelector(
+                "button[onclick='handleEditTitle()']",
+              );
+              if (input.style.display === "none") {
+                input.style.display = "block";
+                title.style.display = "none";
+                button.innerText = "Save";
+              } else {
+                input.style.display = "none";
+                title.innerText = input.value;
+                title.style.display = "block";
+                button.innerText = "Edit";
+                fetch("/expenses/{{expense_id}}/edit-title/", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector(
+                      "[name=csrfmiddlewaretoken]",
+                    ).value,
+                  },
+                  body: JSON.stringify({ expense_name: input.value }),
+                });
+              }
+            }
+          </script>
+          {% endblock %} >>>>>>> Stashed changes
+        </div>
+        {% endblock %} {% block scripts %}
+        <style>
+          .sticky-column {
+            position: fixed;
+            top: 80px; /* Adjust as needed */
+            width: 40%;
+            z-index: 1020; /* Ensure it stays above other content */
+            background-color: white; /* Prevent overlap issues */
+          }
+        </style>
+        <script>
+          function handleEditTitle() {
+            const title = document.getElementById("title");
+            const titleInput = document.getElementById("title-input");
+            const editButton = document.getElementById("edit-title");
+            editButton.classList.add("d-none");
+            title.classList.add("d-none");
+            titleInput.classList.remove("d-none");
+            document.getElementById("save-title").classList.remove("d-none");
+            document.getElementById("cancel-title").classList.remove("d-none");
+          }
+          function handleSaveTitle() {
+            const title = document.getElementById("title");
+            const titleInput = document.getElementById("title-input");
+            const editButton = document.getElementById("edit-title");
+            editButton.classList.remove("d-none");
 
-  function handleAddRow() {
-    const table = document.querySelector("table tbody");
-    const newRow = document.createElement("tr");
-    const randomId = Math.floor(Math.random() * 1000);
-    newRow.id = `item-${randomId}`;
-    newRow.innerHTML = `
+            title.classList.remove("d-none");
+            titleInput.classList.add("d-none");
+            document.getElementById("save-title").classList.add("d-none");
+            document.getElementById("cancel-title").classList.add("d-none");
+
+            fetch("/expenses/{{expense_id}}/save-title/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector(
+                  "[name=csrfmiddlewaretoken]",
+                ).value,
+              },
+              body: JSON.stringify({ title: titleInput.value }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                title.innerHTML = titleInput.value;
+                return data;
+              })
+              .then(showAlert);
+          }
+          function handleCancelTitle() {
+            const title = document.getElementById("title");
+            const titleInput = document.getElementById("title-input");
+            const editButton = document.getElementById("edit-title");
+            editButton.classList.remove("d-none");
+            title.classList.remove("d-none");
+            titleInput.classList.add("d-none");
+            document.getElementById("save-title").classList.add("d-none");
+            document.getElementById("cancel-title").classList.add("d-none");
+          }
+          removedIds = [];
+          function handleRemoveItem(itemId) {
+            let item = document.getElementById(`item-${itemId}`);
+            item.remove();
+            removedIds.push(itemId);
+          }
+
+          function showAlert(data) {
+            const alert = document.getElementById("success-alert");
+            alert.classList.remove("d-none");
+            setTimeout(() => {
+              alert.classList.add("d-none");
+            }, 3000);
+            const title = alert.querySelector(".title");
+            title.innerHTML = data.message;
+          }
+
+          function handleEditItem(itemId) {
+            let item = document.getElementById(`item-${itemId}`);
+            let description = item.querySelector(
+              `input[name="description_${itemId}"]`,
+            );
+            let price = item.querySelector(`input[name="price_${itemId}"]`);
+            description.readOnly = false;
+            price.readOnly = false;
+          }
+
+          function handleSaveChanges() {
+            const items = document.querySelectorAll("table input");
+            let data = [];
+            for (item of items) {
+              let [key, id] = item.name.split("_");
+              const existingItem = data.find((i) => i.id === id);
+              if (!existingItem) {
+                data.push({ id, [key]: item.value });
+              } else {
+                existingItem[key] = item.value;
+              }
+            }
+            fetch("/expenses/{{expense_id}}/save-items/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector(
+                  "[name=csrfmiddlewaretoken]",
+                ).value,
+              },
+              body: JSON.stringify({ data, removedIds }),
+            })
+              .then((response) => response.json())
+              .then(showAlert)
+              .then(showAlert);
+          }
+
+          function handleAddRow() {
+            const table = document.querySelector("table tbody");
+            const newRow = document.createElement("tr");
+            const randomId = Math.floor(Math.random() * 1000);
+            newRow.id = `item-${randomId}`;
+            newRow.innerHTML = `
       <td>
         <input class="form-control" type="text" name="description_${randomId}" />
       </td>
@@ -266,7 +401,11 @@
         </button>
       </td>
     `;
-    table.appendChild(newRow);
-  }
-</script>
-{% endblock %}
+            table.appendChild(newRow);
+          }
+        </script>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>

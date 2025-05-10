@@ -11,9 +11,19 @@ import csv
 from datetime import datetime
 from .models import Expense
 
+
+
 # Path to Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'  # Update this path as needed
+USELESS_ITEMS = ['subtotal', 'tax', 'total', 'balance', 'discount', 'tip', 'cashback', 'credit', 'debit', 'qty', 'payment', 'amount', 'reg', 'net sales', 'discover', 'subtota]']
 
+
+# if the string is a subsctring of the one of the element in USELESS_ITEMS helper function
+def is_useless_item(item):
+    for useless_item in USELESS_ITEMS:
+        if useless_item in item.lower() or item.lower() in useless_item:
+            return True
+    return False
 def parse_receipt(text):
     # Initialize the receipt data dictionary
     print(text)
@@ -42,12 +52,13 @@ def parse_receipt(text):
         if item_match:
             description = item_match.group(1).strip()
             price = float(item_match.group(2).replace('$', '').replace('£', '').replace('f', '').strip())
-            receipt_data['items'].append({
-                'description': description,
-                'price': price,
-                'total': price,
-                'id': str(uuid.uuid4())
-            })
+            if not is_useless_item(description.lower()):
+                receipt_data['items'].append({
+                    'description': description,
+                    'price': price,
+                    'total': price,
+                    'id': str(uuid.uuid4())
+                })
 
     # Extract the total (typically a line that starts with "Total")
     total_pattern = r'(?:total|balance|total\spurchase)\s*:?\s*\$?(\d+(?:[\.\s,]+\d{2}))'

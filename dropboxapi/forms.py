@@ -5,6 +5,9 @@ class DropboxReceiptForm(forms.ModelForm):
     class Meta:
         model = DropboxReceipt
         fields = ['file_name']
+        widgets = {
+            'file_name': forms.Select(attrs={'class': 'form-control'}),
+        }
 
     file_name = forms.ChoiceField(choices=[])
 

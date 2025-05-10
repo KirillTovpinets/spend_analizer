@@ -287,7 +287,6 @@ def receipt_items(request, expense_id):
   expense = Expense.objects.get(id=expense_id)
   dropbox_receipts = expense.dropbox_receipts.all()
   if(len(dropbox_receipts) > 0):
-    token = DropboxAccessTokens.objects.get(user=request.user).token
     images = []
     for dropbox_receipt in dropbox_receipts:
       file_content = download_receipt(request, dropbox_receipt.file_name)
@@ -303,6 +302,7 @@ def receipt_items(request, expense_id):
   return render(request, 'expenses/items_list.html', {
     'items': items,
     'total': expense.amount,
+    'expense_name': expense.merchant,
     'expense_id': expense_id,
     'expense_name': expense.merchant,
     'receipts': expense.receipts.all(),
